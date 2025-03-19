@@ -4,7 +4,7 @@ class AdminLandingPage{
     visit() {
         cy.visit(Cypress.config('baseUrl') +'/admin-landing');
     }
-    
+     
     SelectCompanyFromToggleButton(){
         cy.VerifyElementExistandVisible('.dx-menu-item-content');
         cy.ClickElement('.dx-menu-item-content');
@@ -280,6 +280,15 @@ class AdminLandingPage{
 
         cy.selectElement('#company_list',companyName); 
         cy.wait(2000);
+    }
+
+    togglePasswprdVisibility(){
+        const userId = Cypress.env('newCreatedUser');
+        const companyName = Cypress.env('newCreatedcompany');    
+        cy.selectElement('#company_list',companyName); 
+        cy.ClickElement('#togglePwd' + userId);
+        cy.wait(2000);
+        cy.ClickElement('#togglePwd' + userId);
     }
     //#endregion user edit
 

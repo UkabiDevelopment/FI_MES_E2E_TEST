@@ -56,18 +56,21 @@ describe('Admin Landing Test', () => {
     it('Test Case 8: Should  edit user new created',()=>{  
         //open user edit popup 
         adminLanding.OpenPopupEditUser();
-        adminLanding.editUser();    
-        cy.wait(2000);     
+        adminLanding.editUser();       
     });
 
-    it('Test Case 9: Should  delete user from company',()=>{  
+    it('Test case 9: should toggle password visibility',()=>{
+        adminLanding.togglePasswprdVisibility();   
+    });
+
+    it('Test Case 10: Should  delete user from company',()=>{  
         //open user delete popup 
         adminLanding.openUserDeletePopup();
         adminLanding.deleteUser();    
         cy.wait(2000);     
     });
 
-    it('Test Case 10: Should delete company',()=>{   
+    it('Test Case 11: Should delete company',()=>{   
         //open comapny delete popup
         adminLanding.openCompanyDeletePopup(); 
         adminLanding.deleteCompany();
