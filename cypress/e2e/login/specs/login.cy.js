@@ -10,7 +10,6 @@ describe('Login Test', () => {
 
     it('Test Case 1: Element exists and is visible',()=>{
         loginPage.verifyElementExist();
-        // loginPage.verifyElementVisible();
     });
 
     it('Test Case 2: Login with valid credentials - Admin',()=>{

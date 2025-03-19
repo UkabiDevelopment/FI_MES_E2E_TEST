@@ -23,12 +23,6 @@ class LoginPage {
         cy.VerifyElementExistandVisible('dx-button[type="default"]');
     }
 
-    // verifyElementVisible() {
-    //     cy.VerifyElementVisisble('input[name="email"]');
-    //     cy.VerifyElementVisisble('input[name="password"]');
-    //     cy.VerifyElementVisisble('dx-button[type="default"]');
-    // }
-
     login(admin = false) {
         this.enterEmail(admin);
         this.enterPassword(admin);
