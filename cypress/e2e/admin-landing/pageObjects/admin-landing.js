@@ -1,4 +1,4 @@
-import data from '../../../fixtures/data.json';
+import data from '../../../fixtures/es.json';
 
 class AdminLandingPage{
     visit() {

@@ -1,0 +1,14 @@
+{
+  "companyCreateTitle": "Agregar empresa",
+  "companyName": "Nombre empresa",
+  "Mandatory": "Obligatorio",
+  "email": "Correo electrónico",
+  "cif": "CIF",
+  "save": "GUARDAR",
+  "deleteCompany": "Eliminar Empresa",
+  "userCreateTitle": "Agregar usuario",
+  "userName": "Nombre usuario",
+  "password": "Contraseña",
+  "editUser": "Editar usuario",
+  "page": "Página"
+}
