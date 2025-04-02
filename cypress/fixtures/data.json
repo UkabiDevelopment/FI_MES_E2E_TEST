@@ -1,6 +1,8 @@
 {
     "delettionTaskUniqueIdGrid": 3041,
     "dragAndDropTaskUniqueId": 3036,
-    "delettionTaskOfNumberIdCalendar": 1536
+    "delettionTaskOfNumberIdCalendar": 1536,
+    "dragAndDropNotSplittedTaskUniqueId": 3062,
+    "NotSplittedTaskTaskOfNumberIdCalendar": 1542
 
 }

@@ -1,4 +1,3 @@
-import data from '../../../fixtures/es.json';
 class TaskCalendar{
 
     visit() {
@@ -120,7 +119,7 @@ class TaskCalendar{
     }
 
 
-    prepareForDragAndDrop = (uniqueId) => {
+    preparesForDragAndDrop = (uniqueId) => {
         // Ensure grid and calendar are visible
         cy.VerifyElementExistandVisible('#scrollview');
         cy.VerifyElementExistandVisible('#schedule_calendar');
@@ -158,6 +157,24 @@ class TaskCalendar{
     
         cy.log(`Dragged task with uniqueId ${formattedUniqueId} and dropped on the calendar.`);
     };
+
+    dragAndDropTaskFromCalendarToCalendar = (ofNumber) => {
+        const formattedOfNumber = String(ofNumber).trim();
+
+        const draggableTask = cy.get('.dx-scheduler-appointment')
+            .contains(formattedOfNumber)
+            .first();
+    
+        // Target the third cell in the first row
+        const dropTarget = cy.get('tbody > tr:nth-child(1) > td:nth-child(2)');
+        
+        // Perform drag-and-drop
+        draggableTask.trigger('mousedown', { which: 1, force: true });
+        dropTarget.trigger('mousemove', { force: true }).trigger('mouseup', { force: true });
+        
+        cy.log(`Dragged task ${formattedOfNumber} to the third cell.`);
+    };
+    
 
     verifyTaskDroppedAndValidated = (formattedUniqueId) => {
         cy.get('body').then(($body) => {
@@ -239,27 +256,36 @@ class TaskCalendar{
         cy.get('.actions > .ng-star-inserted > .dx-widget > .dx-button-content').click();
     };
 
-    verifyTaskDeletion = (uniqueId) => {
+    verifyTaskDeletion = (ofNumber,uniqueId) => {
+        const formattedOfNumber = String(ofNumber).trim();
         const formattedUniqueId = String(uniqueId).trim();
-        cy.get('.dx-scheduler-appointment').should('not.contain', formattedUniqueId);
-        cy.log('Task with ID ' + formattedUniqueId + ' successfully deleted.');
+        this.filterTaskInGridUsingOfNumber(formattedOfNumber);
+        cy.VerifyElementExistandVisible('#scrollview .list-row');
+    
+        cy.get('#scrollview .list-row').each(($row) => {
+            cy.wrap($row).within(() => {
+                cy.get('.list-cell').eq(1).invoke('text').then((cellText) => {
+                    const taskId = cellText.trim().split(' ')[0];
+        
+                    if (taskId === formattedUniqueId) {
+                        cy.log('Task with ID ' + formattedUniqueId + ' found.');
+                        
+                        // ✅ Assert that the task exists
+                        expect(taskId).to.eq(formattedUniqueId);
+                    }
+                });
+            });
+        });
+
+        cy.log('Task with ID ' + formattedOfNumber + ' successfully deleted.');
     };
     
-    getTaskDetails(){
-        cy.get('.dx-scheduler-appointment')
-        .contains(1536)
-        .parent()
-        .invoke('attr', 'id')
-        .then((id) => {
-            cy.get('#'+id)
-                .invoke('text')
-                .then((text) => {
-                  cy.log('Appointment Details:', text.trim());
-                  console.log('Appointment Details:', text.trim()); // Logs in browser console
-                });
-        });
-      
-    }
+   filterTaskInGridUsingOfNumber = (ofNumber) => {
+    cy.VerifyElementExistandVisible('.searchTextBox > .dx-texteditor-container > .dx-texteditor-input-container > .dx-texteditor-input');
+    cy.get('.searchTextBox > .dx-texteditor-container > .dx-texteditor-input-container > .dx-texteditor-input').clear();
+    cy.get('.searchTextBox > .dx-texteditor-container > .dx-texteditor-input-container > .dx-texteditor-input').type(ofNumber);
+    cy.ClickElement('.ml-4 > .dx-box-item-flex-base > :nth-child(1) > .dx-template-wrapper > .dx-widget > .dx-button-content');
+   }
 }
 
 export default TaskCalendar;

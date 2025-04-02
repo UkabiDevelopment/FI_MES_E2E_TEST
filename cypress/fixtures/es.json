@@ -10,5 +10,6 @@
   "userName": "Nombre usuario",
   "password": "Contraseña",
   "editUser": "Editar usuario",
-  "page": "Página"
+  "page": "Página",
+  "DayIntervalTask": "Las tareas divididas en el horario del día no se pueden mover"
 }

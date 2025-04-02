@@ -1,5 +1,6 @@
 import TaskCalendar from '../pageObjects/task-calendar';
 import data from '../../../fixtures/data.json';
+import es from '../../../fixtures/es.json';
 
 describe('Task Calendar Test', () => {
     const taskCalendar = new TaskCalendar();
@@ -57,12 +58,12 @@ describe('Task Calendar Test', () => {
     });
     
 
-    it('Test Case 4: drag from grid and drop task to calendar',()=>{
+    it('Test Case 4: drag task from grid and drop task to calendar',()=>{
         const uniqueId = data.dragAndDropTaskUniqueId;
         const ofNumber = data.delettionTaskOfNumberIdCalendar;  
 
         // Arrange: Set up initial conditions
-        taskCalendar.prepareForDragAndDrop(uniqueId);
+        taskCalendar.preparesForDragAndDrop(uniqueId);
 
         // Act: Perform the drag-and-drop action
         taskCalendar.dragAndDropTaskFromGridToCalendar(uniqueId);
@@ -72,8 +73,31 @@ describe('Task Calendar Test', () => {
         cy.wait(5000);
     });
 
-    it('Test Case 5: Should delete task from calendar if available', () => {
+
+    
+    it('Test Case 5:  drag splitted task from one day in calendar and drop task to another day in calendar',()=>{
+        const ofNumber = data.delettionTaskOfNumberIdCalendar;  
+
+         // Arrange: Check if the task exists on the calendar before proceeding
+         const taskFound = taskCalendar.checkTaskInCalendar(ofNumber);
+
+        // Act: Perform the drag-and-drop action
+        if (taskFound) {
+            taskCalendar.dragAndDropTaskFromCalendarToCalendar(ofNumber);
+                
+            // Assert: Verify the splitted  task is not drag and drop show warning message
+            cy.get('.toast-message').should('contain', es.DayIntervalTask);
+        } else {
+            cy.log('No task found in the calendar.');
+        }
+
+        cy.wait(5000);
+    });
+
+
+    it('Test Case 6: Should delete task from calendar if available', () => {
         const ofNumber = data.delettionTaskOfNumberIdCalendar; 
+        const uniqueId = data.dragAndDropTaskUniqueId;
     
         // Arrange: Check if the task exists on the calendar before proceeding
         const taskFound = taskCalendar.checkTaskInCalendar(ofNumber);
@@ -83,13 +107,39 @@ describe('Task Calendar Test', () => {
             taskCalendar.deleteTaskFromCalendar(ofNumber);
     
             // Assert: Verify the task is deleted
-            taskCalendar.verifyTaskDeletion(ofNumber);
+            taskCalendar.verifyTaskDeletion(ofNumber,uniqueId);
         } else {
             cy.log('No task found in the calendar to delete.');
         }
     });
+
+    it('Test Case 7: drag task from one day in calendar and drop task to another day in calendar',()=>{
+        const uniqueId = data.dragAndDropNotSplittedTaskUniqueId;
+        const ofNumber = data.NotSplittedTaskTaskOfNumberIdCalendar;  
+
+        // Arrange: Set up initial conditions
+        taskCalendar.filterTaskInGridUsingOfNumber(ofNumber);
+        taskCalendar.preparesForDragAndDrop(uniqueId);
+        taskCalendar.dragAndDropTaskFromGridToCalendar(uniqueId);
+        taskCalendar.verifyTaskDroppedAndValidated(ofNumber);
+        const taskFound = taskCalendar.checkTaskInCalendar(ofNumber);
+
+        // Act: Perform the drag-and-drop action
+        if (taskFound) {
+            taskCalendar.dragAndDropTaskFromCalendarToCalendar(ofNumber);
+            cy.wait(2000);
+            //Assert: Verify the splitted  task is not drag and drop show warning message
+            cy.get('#schedule_calendar').should('contain', ofNumber);
+
+            taskCalendar.deleteTaskFromCalendar(ofNumber);
+
+             // Assert: Verify the task is deleted
+             taskCalendar.verifyTaskDeletion(ofNumber,uniqueId);
+        } else {
+            cy.log('No task found in the calendar.');
+        }
+        cy.wait(5000);
+    });
+
     
-    // it('Test Case 6: get Task details',()=>{
-    //     taskCalendar.getTaskDetails();
-    // });
 });
