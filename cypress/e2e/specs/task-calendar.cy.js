@@ -1,6 +1,6 @@
 import TaskCalendar from '../pageObjects/task-calendar';
-import data from '../../../fixtures/data.json';
-import es from '../../../fixtures/es.json';
+import data from '../../fixtures/data.json';
+import es from '../../fixtures/es.json';
 
 describe('Task Calendar Test', () => {
     const taskCalendar = new TaskCalendar();

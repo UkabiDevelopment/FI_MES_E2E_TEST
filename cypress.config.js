@@ -6,7 +6,8 @@ module.exports = defineConfig({
       // implement node event listeners here
     },
     excludeSpecPattern: ["**/node_modules/**"],
-    baseUrl: "http://localhost:4200",
+    baseUrl: "https://fimes.alfa.ukabi.com",
+    // baseUrl: "http://localhost:4200",
     env: {
       email:process.env.EMAIL || '', // Read email from environment variable
       password:process.env.PASSWORD || '', //Read password from environment variable
@@ -16,5 +17,12 @@ module.exports = defineConfig({
     },
     defaultCommandTimeout: 10000, // Increases default timeout to 10 seconds
     pageLoadTimeout: 10000, // Increases page load timeout to 10 seconds
+    reporter: 'mochawesome',
+    reporterOptions: {
+      reportDir: 'cypress/reports', // Directory for reports
+      overwrite: false,
+      html: true,
+      json: true,
+    },
   },
 });
