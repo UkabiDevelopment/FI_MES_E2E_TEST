@@ -61,8 +61,8 @@ describe('Task Calendar Test', () => {
     it('Test Case 4: drag task from grid and drop task to calendar',()=>{
         const uniqueId = data.dragAndDropTaskUniqueId;
         const ofNumber = data.delettionTaskOfNumberIdCalendar;  
-
         // Arrange: Set up initial conditions
+        taskCalendar.filterTaskInGridUsingOfNumber(ofNumber);
         taskCalendar.preparesForDragAndDrop(uniqueId);
 
         // Act: Perform the drag-and-drop action
@@ -79,6 +79,7 @@ describe('Task Calendar Test', () => {
         const ofNumber = data.delettionTaskOfNumberIdCalendar;  
 
          // Arrange: Check if the task exists on the calendar before proceeding
+         taskCalendar.filterTaskInGridUsingOfNumber(ofNumber);
          const taskFound = taskCalendar.checkTaskInCalendar(ofNumber);
 
         // Act: Perform the drag-and-drop action
@@ -100,6 +101,7 @@ describe('Task Calendar Test', () => {
         const uniqueId = data.dragAndDropTaskUniqueId;
     
         // Arrange: Check if the task exists on the calendar before proceeding
+        taskCalendar.filterTaskInGridUsingOfNumber(ofNumber);
         const taskFound = taskCalendar.checkTaskInCalendar(ofNumber);
     
         // Act: If the task exists, perform the delete action

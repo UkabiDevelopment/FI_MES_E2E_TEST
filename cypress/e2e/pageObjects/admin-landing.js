@@ -1,4 +1,5 @@
 import data from '../../fixtures/data.json';
+import es from '../../fixtures/es.json';
 
 class AdminLandingPage{
     visit() {
@@ -20,14 +21,10 @@ class AdminLandingPage{
     }
 
     VerifyComppanyCreatePopupElementExistAndVisible(){
-        // cy.VerifyContains('#companyName',data.companyName);
-        // cy.VerifyContains('#email',data.email);
-        // cy.VerifyContains('#cif',data.cif);
-        // cy.VerifyContains('.dx-invalid-message-content',data.Mandatory);
-
         cy.VerifyElementExistandVisible('#companyName');
         cy.VerifyElementExistandVisible('#cif');
         cy.VerifyElementExistandVisible('#email');
+        cy.VerifyElementExistandVisible('#machinePixelHeight');
         cy.VerifyElementExistandVisible('#saveCompany');
     }
 
@@ -49,6 +46,9 @@ class AdminLandingPage{
             cy.get('#email').type(email);  
         });
         
+        cy.clearInputField('#machinePixelHeight');
+        cy.get('#machinePixelHeight').type(95);
+
         cy.get('body').click();
 
         cy.intercept('POST', '**/api/Company/AddCompany').as('addCompany');
@@ -62,7 +62,7 @@ class AdminLandingPage{
 
         cy.get('body').click(); // Click outside
         cy.wait(2000);
-        cy.get('#addEditCompanyPopup').should('not.be.visible'); 
+        cy.get('#IdAddEditCompanyPopup').should('not.exist')
         
     }
     //#endregion comapny create
@@ -97,27 +97,29 @@ class AdminLandingPage{
     }
 
     editCompany(){
+        //this.VerifyComppanyCreatePopupElementExistAndVisible();  
         var companyName = '';           
-       
+        cy.get('#companyName > .dx-texteditor-container > .dx-texteditor-input-container > .dx-texteditor-input').clear();
+       // cy.get('#companyName', { timeout: 5000 }).should('be.visible').clear();
         cy.generateRandomText().then((randomText) => {
             companyName = randomText;
             Cypress.env('newCreatedcompany', companyName);
-            cy.clearInputField('#companyName');
             cy.get('#companyName').type(companyName); 
         });
 
+        cy.get('#cif', { timeout: 5000 }).should('be.visible').clear();
         cy.generateRandomText().then((randomText) => {
-            cy.clearInputField('#cif');
             cy.get('#cif').type(randomText);  
         });
-        
+
+        cy.get('#email', { timeout: 5000 }).should('be.visible').clear();
         cy.generateRandomEmail(3).then((email) => {
-            cy.clearInputField('#email');
             cy.get('#email').type(email);  
         });
         
-        cy.get('body').click();
+        // cy.get('#IdAddEditCompanyPopup').click('topLeft');
 
+        cy.get('body').click();
         cy.intercept('POST', '**/api/Company/AddCompany').as('addCompany');
         cy.intercept('GET', '**/api/Company/GetCompanies').as('getCompanies');
 
@@ -129,7 +131,7 @@ class AdminLandingPage{
 
         cy.get('body').click(); // Click outside
         cy.wait(2000);
-        cy.get('#addEditCompanyPopup').should('not.be.visible'); 
+        cy.get('#IdAddEditCompanyPopup').should('not.exist') 
     }
     //#endregion company edit
 
@@ -145,7 +147,7 @@ class AdminLandingPage{
 
     deleteCompany(){
         const companyName = Cypress.env('newCreatedcompany');
-        cy.VerifyTitle('.dx-popup-title',data.deleteCompany);
+        cy.VerifyTitle('.dx-popup-title',es.deleteCompany);
         cy.VerifyTitle('.wrap-name',companyName);
         cy.VerifyElementExistandVisible('#deleteCompanyBtn');
         cy.ClickElement('#deleteCompanyBtn');
@@ -163,10 +165,6 @@ class AdminLandingPage{
     }
 
     VerifyUserCreatePopupElementExistAndVisible(){
-        // cy.VerifyContains('#userId',data.userName);
-        // cy.VerifyContains('#userEmail',data.email);
-        // cy.VerifyContains('#password',data.password);
-        // cy.VerifyContains('.dx-invalid-message-content',data.Mandatory);
 
         cy.VerifyElementExistandVisible('#userId');
         cy.VerifyElementExistandVisible('#userEmail');
@@ -246,7 +244,7 @@ class AdminLandingPage{
     editUser(){
         var userName = '';
         const companyName = Cypress.env('newCreatedcompany');
-        cy.VerifyContains('.dx-toolbar',data.editUser);        
+        cy.VerifyContains('.dx-toolbar',es.editUser);        
        
         cy.generateRandomText().then((randomText) => {
             userName = randomText;

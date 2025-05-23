@@ -6,8 +6,8 @@ module.exports = defineConfig({
       // implement node event listeners here
     },
     excludeSpecPattern: ["**/node_modules/**"],
-    baseUrl: "https://fimes.alfa.ukabi.com",
-    // baseUrl: "http://localhost:4200",
+    //baseUrl: "https://fimes.alfa.ukabi.com",
+      baseUrl: "http://localhost:4200",
     env: {
       email:process.env.EMAIL || '', // Read email from environment variable
       password:process.env.PASSWORD || '', //Read password from environment variable
