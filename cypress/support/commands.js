@@ -135,3 +135,7 @@ Cypress.Commands.add('dragAndDrop', (sourceSelector, targetSelector) => {
     .trigger('mousemove', { clientX: 500, clientY: 500 }) // Adjust coordinates as needed
     .trigger('mouseup', { force: true });
 });
+
+Cypress.Commands.add('refreshPage', (selector) => {
+    cy.ClickElement('.ml-4 > .dx-box-item-flex-base > :nth-child(1) > .dx-template-wrapper > .dx-widget > .dx-button-content');
+});

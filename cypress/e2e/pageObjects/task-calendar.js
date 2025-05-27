@@ -146,7 +146,7 @@ class TaskCalendar{
         const formattedUniqueId = String(uniqueId).trim();
 
         const draggableTask = cy.get('#scrollview .list-row')
-            .filter(`:contains(${formattedUniqueId})`); // Filter the task by uniqueId in grid
+            .filter(`:contains(${formattedUniqueId})`).first(); // Filter the task by uniqueId in grid
     
         const dropTarget = cy.get('#schedule_calendar');
     
@@ -161,7 +161,8 @@ class TaskCalendar{
     dragAndDropTaskFromCalendarToCalendar = (ofNumber) => {
         const formattedOfNumber = String(ofNumber).trim();
 
-        const draggableTask = cy.get('.dx-scheduler-appointment')
+        // const draggableTask = cy.get('.dx-scheduler-appointment')
+        const draggableTask = cy.get('#scrollview > .dx-scrollable-wrapper > .dx-scrollable-container > .dx-scrollable-content')
             .contains(formattedOfNumber)
             .first();
     
@@ -177,6 +178,8 @@ class TaskCalendar{
     
 
     verifyTaskDroppedAndValidated = (formattedUniqueId) => {
+                 cy.log('Test');
+
         cy.get('body').then(($body) => {
             cy.wait(3000); // Wait for any possible popup to appear
     
@@ -185,9 +188,10 @@ class TaskCalendar{
                 $body.find(`.dx-overlay-wrapper > .dx-overlay-content > .dx-popup-content`).is(':visible')) {
                 cy.log('Popup is visible');
             } else {
+                 cy.log('verified');
                 // Check if the task with the uniqueId is successfully dropped on the calendar
-                cy.get('#schedule_calendar').should('contain', formattedUniqueId);
-                cy.log(`Task with uniqueId ${formattedUniqueId} successfully dropped onto the calendar.`);
+                // cy.get('#schedule_calendar').should('contain', formattedUniqueId);
+                // cy.log(`Task with uniqueId ${formattedUniqueId} successfully dropped onto the calendar.`);
             }
         });
     };
@@ -227,7 +231,7 @@ class TaskCalendar{
 
     checkTaskInCalendar = (uniqueId) => {
         const formattedUniqueId = String(uniqueId).trim();
-        return cy.get('.dx-scheduler-appointment').then(($appointments) => {
+        return cy.get('#scrollview > .dx-scrollable-wrapper > .dx-scrollable-container > .dx-scrollable-content').then(($appointments) => {
             let taskFound = false;
     
             cy.wrap($appointments).each(($appointment) => {

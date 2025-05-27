@@ -11,5 +11,6 @@
   "password": "Contraseña",
   "editUser": "Editar usuario",
   "page": "Página",
-  "DayIntervalTask": "Las tareas divididas en el horario del día no se pueden mover"
+  "DayIntervalTask": "Las tareas divididas en el horario del día no se pueden mover",
+  "groupTaskPopupHeader": "HRLines en grupo"
 }
