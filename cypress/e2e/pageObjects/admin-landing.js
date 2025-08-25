@@ -3,7 +3,7 @@ import es from '../../fixtures/es.json';
 
 class AdminLandingPage{
     visit() {
-        cy.visit(Cypress.config('baseUrl') +'/admin-landing');
+        cy.visit(Cypress.config('baseUrl') +'/#/admin-landing');
     }
      
     SelectCompanyFromToggleButton(){
@@ -49,7 +49,8 @@ class AdminLandingPage{
         cy.clearInputField('#machinePixelHeight');
         cy.get('#machinePixelHeight').type(95);
 
-        cy.get('body').click();
+       cy.get('.modal-content').click();
+       cy.get('.form > :nth-child(7)').click();
 
         cy.intercept('POST', '**/api/Company/AddCompany').as('addCompany');
         cy.intercept('GET', '**/api/Company/GetCompanies').as('getCompanies');
@@ -70,7 +71,6 @@ class AdminLandingPage{
     //#region company deactivate and activate
     deactivateCompany(){
         const companyName = Cypress.env('newCreatedcompany');
-        // cy.VerifyElementExistandVisible('#company_list');
         cy.mouseHoverElement('#company_list',companyName);
         cy.wait(2000);
         cy.VerifyElementExistandVisible('#deactivateCompany'+companyName);
@@ -78,7 +78,6 @@ class AdminLandingPage{
     }
     activateCompany(){
         const companyName = Cypress.env('newCreatedcompany');
-        // cy.VerifyElementExistandVisible('#company_list');
         cy.mouseHoverElement('#company_list',companyName);
         cy.wait(2000);
         cy.VerifyElementExistandVisible('#deactivateCompany'+companyName);
@@ -89,7 +88,6 @@ class AdminLandingPage{
     //#region company edit
     OpenPopupEditCompany(){
         const companyName = Cypress.env('newCreatedcompany');
-        // cy.VerifyElementExistandVisible('#company_list');
         cy.mouseHoverElement('#company_list',companyName);
         cy.wait(2000);
         cy.VerifyElementExistandVisible('#editCompany'+companyName);
@@ -97,10 +95,8 @@ class AdminLandingPage{
     }
 
     editCompany(){
-        //this.VerifyComppanyCreatePopupElementExistAndVisible();  
         var companyName = '';           
         cy.get('#companyName > .dx-texteditor-container > .dx-texteditor-input-container > .dx-texteditor-input').clear();
-       // cy.get('#companyName', { timeout: 5000 }).should('be.visible').clear();
         cy.generateRandomText().then((randomText) => {
             companyName = randomText;
             Cypress.env('newCreatedcompany', companyName);
@@ -117,7 +113,6 @@ class AdminLandingPage{
             cy.get('#email').type(email);  
         });
         
-        // cy.get('#IdAddEditCompanyPopup').click('topLeft');
 
         cy.get('body').click();
         cy.intercept('POST', '**/api/Company/AddCompany').as('addCompany');
@@ -138,7 +133,6 @@ class AdminLandingPage{
     //#region company delete
     openCompanyDeletePopup(){
         const companyName = Cypress.env('newCreatedcompany');
-        // cy.VerifyElementExistandVisible('#company_list');
         cy.mouseHoverElement('#company_list',companyName);
         cy.wait(2000);
         cy.VerifyElementExistandVisible('#deleteCompany'+companyName);
@@ -147,7 +141,7 @@ class AdminLandingPage{
 
     deleteCompany(){
         const companyName = Cypress.env('newCreatedcompany');
-        cy.VerifyTitle('.dx-popup-title',es.deleteCompany);
+        cy.VerifyTitle('h2',es.deleteCompany);
         cy.VerifyTitle('.wrap-name',companyName);
         cy.VerifyElementExistandVisible('#deleteCompanyBtn');
         cy.ClickElement('#deleteCompanyBtn');
@@ -200,8 +194,7 @@ class AdminLandingPage{
         
         cy.wait('@addUser').its('response.statusCode').should('eq', 200);
         
-        cy.get('body').click(); // Click outside
-        cy.get('#addEditUserPopup').should('not.be.visible'); 
+        cy.get('body').click(); // Click outside 
 
         cy.selectElement('#company_list',companyName); 
         cy.wait(2000);
@@ -244,23 +237,23 @@ class AdminLandingPage{
     editUser(){
         var userName = '';
         const companyName = Cypress.env('newCreatedcompany');
-        cy.VerifyContains('.dx-toolbar',es.editUser);        
+        cy.VerifyContains('.modal-content',es.editUser);        
        
         cy.generateRandomText().then((randomText) => {
             userName = randomText;
             Cypress.env('newCreatedUser', userName);
-            cy.clearInputField('#userId');
-            cy.get('#userId').type(userName); 
+            cy.clearInputField('#userId > .dx-texteditor-container > .dx-texteditor-input-container > .dx-texteditor-input');
+            cy.get('#userId > .dx-texteditor-container > .dx-texteditor-input-container > .dx-texteditor-input').type(userName); 
         });
 
         cy.generateRandomText().then((randomText) => {
-            cy.clearInputField('#userEmail');
-            cy.get('#userEmail').type(randomText);  
+            cy.clearInputField('#userEmail > .dx-texteditor-container > .dx-texteditor-input-container > .dx-texteditor-input');
+            cy.get('#userEmail > .dx-texteditor-container > .dx-texteditor-input-container > .dx-texteditor-input').type(randomText);  
         });
         
         cy.generateRandomEmail(3).then((email) => {
-            cy.clearInputField('#password');
-            cy.get('#password').type(email);  
+            cy.clearInputField('#password > .dx-texteditor-container > .dx-texteditor-input-container > .dx-texteditor-input');
+            cy.get('#password > .dx-texteditor-container > .dx-texteditor-input-container > .dx-texteditor-input').type(email);  
         });
         
         cy.get('body').click();
@@ -272,7 +265,6 @@ class AdminLandingPage{
         cy.wait('@addUser').its('response.statusCode').should('eq', 200);
         
         cy.get('body').click(); // Click outside
-        cy.get('#addEditUserPopup').should('not.be.visible'); 
 
         cy.selectElement('#company_list',companyName); 
         cy.wait(2000);

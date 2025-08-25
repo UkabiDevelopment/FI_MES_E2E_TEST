@@ -71,7 +71,7 @@ class TaskCalendar{
     
 
     clickTaskCheckbox(){
-        cy.get('#scrollview .list-row').first().within(() => {
+        cy.get('#scrollview').first().within(() => {
             cy.get('.list-cell').eq(1).invoke('text').then((cellText) => {
                 const uniqueId = cellText.trim().split(' ')[0];
                 cy.get(`#taskCheckbox${uniqueId}`).find('.dx-checkbox-icon').click({ force: true });
@@ -81,7 +81,7 @@ class TaskCalendar{
     }
 
     checkTaskExistenceAndSelect = (uniqueId) => {
-        return cy.get('#scrollview .list-row').then(($rows) => {
+        return cy.get('#scrollview').then(($rows) => {
             let taskFound = false;
             const formattedUniqueId = String(uniqueId).trim();
             cy.wrap($rows).each(($row) => {
@@ -126,7 +126,7 @@ class TaskCalendar{
     
         const formattedUniqueId = String(uniqueId).trim();
         // Check if the task with the given unique ID exists in the grid
-        cy.get('#scrollview .list-row').each(($row) => {
+        cy.get('#scrollview').each(($row) => {
             cy.wrap($row).within(() => {
                 cy.get('.list-cell').eq(1).invoke('text').then((cellText) => {
                     const taskId = cellText.trim().split(' ')[0];
@@ -142,37 +142,43 @@ class TaskCalendar{
         
     };
 
-    dragAndDropTaskFromGridToCalendar = (uniqueId) => {
-        const formattedUniqueId = String(uniqueId).trim();
+   dragAndDropTaskFromGridToCalendar = (uniqueId) => {
 
-        const draggableTask = cy.get('#scrollview .list-row')
-            .filter(`:contains(${formattedUniqueId})`).first(); // Filter the task by uniqueId in grid
-    
-        const dropTarget = cy.get('#schedule_calendar');
-    
-        // Trigger the drag-and-drop event
-        draggableTask.trigger('mousedown', { which: 1 });
-        dropTarget.trigger('mousemove', { clientX: 500, clientY: 500 });
-        dropTarget.trigger('mouseup', { force: true });
-    
-        cy.log(`Dragged task with uniqueId ${formattedUniqueId} and dropped on the calendar.`);
+    const formattedUniqueId = String(uniqueId).trim();
+
+    cy.contains('#scrollview .dx-draggable', formattedUniqueId, { timeout: 10000 })
+        .should('exist')
+        .then((task) => {
+        // Start dragging
+        cy.wrap(task).realMouseDown();
+        cy.wait(6000); // just to visualize drag
+
+        // Drop into first section (first row, second cell)
+        cy.get('.dx-scheduler-date-table-row').first()
+            .find('.dx-scheduler-date-table-cell')
+            .eq(1) // usually the first valid time cell
+            .realMouseMove(10, 10)
+            .realMouseUp();
+        cy.log(`Dropped task ${formattedUniqueId} into the first calendar section`);
+        });
     };
 
+
     dragAndDropTaskFromCalendarToCalendar = (ofNumber) => {
+        cy.intercept('GET', '**/api/HrLineDetail/GetHrLineDetails*').as('getHrLineDetail');
+        cy.intercept('GET', '**/api/HrLine*').as('getHrLine');
         const formattedOfNumber = String(ofNumber).trim();
 
-        // const draggableTask = cy.get('.dx-scheduler-appointment')
-        const draggableTask = cy.get('#scrollview > .dx-scrollable-wrapper > .dx-scrollable-container > .dx-scrollable-content')
-            .contains(formattedOfNumber)
-            .first();
-    
-        // Target the third cell in the first row
-        const dropTarget = cy.get('tbody > tr:nth-child(1) > td:nth-child(2)');
+        this.filterTaskInGridUsingOfNumber(ofNumber); 
+        cy.get('.dx-scheduler', { timeout: 20000 })  // increase timeout
+            .should('exist')
+            .first()
+            .realMouseDown();
+        cy.get('tbody > tr:nth-child(1) > td:nth-child(2)').realMouseUp();
         
-        // Perform drag-and-drop
-        draggableTask.trigger('mousedown', { which: 1, force: true });
-        dropTarget.trigger('mousemove', { force: true }).trigger('mouseup', { force: true });
-        
+        cy.wait('@getHrLineDetail').its('response.statusCode').should('eq', 200);
+        cy.wait('@getHrLine').its('response.statusCode').should('eq', 200);
+
         cy.log(`Dragged task ${formattedOfNumber} to the third cell.`);
     };
     
@@ -189,9 +195,6 @@ class TaskCalendar{
                 cy.log('Popup is visible');
             } else {
                  cy.log('verified');
-                // Check if the task with the uniqueId is successfully dropped on the calendar
-                // cy.get('#schedule_calendar').should('contain', formattedUniqueId);
-                // cy.log(`Task with uniqueId ${formattedUniqueId} successfully dropped onto the calendar.`);
             }
         });
     };
@@ -202,9 +205,9 @@ class TaskCalendar{
         cy.VerifyElementExistandVisible('#scrollview');
         cy.VerifyElementExistandVisible('#schedule_calendar');
 
-        const draggableTask = cy.get('#scrollview .list-row').first();
+        const draggableTask = cy.get('#scrollview').first();
         
-        cy.get('#scrollview .list-row')
+        cy.get('#scrollview')
         .first()
         .invoke('text')
         .then((text) => {
@@ -231,7 +234,7 @@ class TaskCalendar{
 
     checkTaskInCalendar = (uniqueId) => {
         const formattedUniqueId = String(uniqueId).trim();
-        return cy.get('#scrollview > .dx-scrollable-wrapper > .dx-scrollable-container > .dx-scrollable-content').then(($appointments) => {
+        return cy.get('tbody > :nth-child(1)').then(($appointments) => {
             let taskFound = false;
     
             cy.wrap($appointments).each(($appointment) => {
@@ -250,23 +253,37 @@ class TaskCalendar{
         });
     };
     
-    
 
-    deleteTaskFromCalendar = (uniqueId) => {
-        const formattedUniqueId = String(uniqueId).trim();
-        cy.VerifyElementExistandVisible('.dx-scheduler');
-        cy.VerifyElementExistandVisible('.dx-scheduler-appointment');
-        cy.get('.dx-scheduler-appointment').contains(formattedUniqueId).click(); 
-        cy.get('.actions > .ng-star-inserted > .dx-widget > .dx-button-content').click();
-    };
+deleteTaskFromCalendar = (uniqueId) => {
+    cy.intercept('GET', '**/api/HrLineDetail/GetHrLineDetails*').as('getHrLineDetail');
+    cy.intercept('GET', '**/api/HrLine*').as('getHrLine');
+    // cy.intercept('GET', '**/api/Machine/GetMachines*').as('getMachine');
+    const formattedOfNumber = String(uniqueId).trim();
+
+    cy.wait('@getHrLineDetail').its('response.statusCode').should('eq', 200);
+    cy.wait('@getHrLine').its('response.statusCode').should('eq', 200);
+    // cy.wait('@getMachine').its('response.statusCode').should('eq', 200);
+    cy.wait(2000);
+    cy.get('.dx-scheduler-appointment', { timeout: 15000 })
+      .contains(formattedOfNumber)
+      .should('be.visible')
+      .click({ force: true });
+
+
+    cy.get('.actions > .ng-star-inserted > .dx-widget > .dx-button-content')
+      .should('be.visible')
+      .click();
+};
+
+
 
     verifyTaskDeletion = (ofNumber,uniqueId) => {
         const formattedOfNumber = String(ofNumber).trim();
         const formattedUniqueId = String(uniqueId).trim();
         this.filterTaskInGridUsingOfNumber(formattedOfNumber);
-        cy.VerifyElementExistandVisible('#scrollview .list-row');
+        cy.VerifyElementExistandVisible('#scrollview');
     
-        cy.get('#scrollview .list-row').each(($row) => {
+        cy.get('#scrollview').each(($row) => {
             cy.wrap($row).within(() => {
                 cy.get('.list-cell').eq(1).invoke('text').then((cellText) => {
                     const taskId = cellText.trim().split(' ')[0];

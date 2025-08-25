@@ -1,6 +1,6 @@
 class LoginPage {
     visit() {
-        cy.visit(Cypress.config('baseUrl') +'/login');
+        cy.visit(Cypress.config('baseUrl') +'/#/');
     }
 
     enterEmail(admin = false) {

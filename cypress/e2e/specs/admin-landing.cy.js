@@ -10,7 +10,7 @@ describe('Admin Landing Test', () => {
 
     it('Test Case 1: Verify the page admin-landing',()=>{
         // Arrange: Define the expected URL part
-        const expectedUrl = '/admin-landing';
+        const expectedUrl = '/#/admin-landing';
         
         // Assert:
         cy.VerifyUrl(expectedUrl); 
@@ -19,7 +19,7 @@ describe('Admin Landing Test', () => {
     it('Test Case 2: Should display company list after click ridirect to task calendar page',()=>{
         //check and click menu list icon
         adminLanding.SelectCompanyFromToggleButton();      
-        cy.VerifyUrl('/task-calender');
+        cy.VerifyUrl('/#/task-calender');
         cy.wait(2000);  
     });
 

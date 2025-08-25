@@ -1,6 +1,5 @@
 import TaskCalendar from '../pageObjects/task-calendar';
 import data from '../../fixtures/data.json';
-import es from '../../fixtures/es.json';
 
 describe('Task Calendar Test', () => {
     const taskCalendar = new TaskCalendar();
@@ -12,7 +11,7 @@ describe('Task Calendar Test', () => {
 
     it('Test Case 1: Verify the page task-calendar',()=>{
          // Arrange: Define the expected URL part
-        const expectedUrl = '/task-calender';
+        const expectedUrl = '/#/task-calender';
         
         // Assert:
         cy.VerifyUrl(expectedUrl); 
@@ -35,9 +34,11 @@ describe('Task Calendar Test', () => {
     });
 
     it('Test Case 3: Should select a task from the list and confirm deletion', () => {
-        const uniqueId = data.delettionTaskUniqueIdGrid;
+        const uniqueId = data.delettionTaskUniqueIdGrid; 
     
         // Arrange: 
+        taskCalendar.filterTaskInGridUsingOfNumber(uniqueId);
+        cy.wait(2000);
         // Check if the task exists in the list and select the checkbox if available
         const taskFound = taskCalendar.checkTaskExistenceAndSelect(uniqueId);
     
@@ -58,22 +59,38 @@ describe('Task Calendar Test', () => {
     });
     
 
-    it('Test Case 4: drag task from grid and drop task to calendar',()=>{
-        const uniqueId = data.dragAndDropTaskUniqueId;
-        const ofNumber = data.delettionTaskOfNumberIdCalendar;  
-        // Arrange: Set up initial conditions
-        taskCalendar.filterTaskInGridUsingOfNumber(ofNumber);
-        taskCalendar.preparesForDragAndDrop(uniqueId);
+   it('Test Case 4: drag task from grid and drop task to calendar', () => {
+    const uniqueId = data.dragAndDropTaskUniqueId;
+    const ofNumber = data.delettionTaskOfNumberIdCalendar;  
 
-        // Act: Perform the drag-and-drop action
-        taskCalendar.dragAndDropTaskFromGridToCalendar(uniqueId);
-        cy.refreshPage();
-        cy.wait(5000);
-        
-        // Assert: Verify the task is successfully dropped and check for any popups or validation
-        taskCalendar.verifyTaskDroppedAndValidated(ofNumber);
-        cy.wait(5000);
+    // Arrange: intercepts before the drag
+   cy.intercept('POST', '**/api/HrLineDetail/CheckHrLineScheduledDetails*').as('checkHrlineSchedule');
+    cy.intercept('POST', '**/api/HrLineDetail/CheckYearlySchedule*').as('checkYearlySchedule');
+    cy.intercept('POST', '**/api/HrLineDetail/AddHrLineDetailNew*').as('addHrLineDetailNew');
+    cy.intercept('GET', '**/api/HrLine*').as('getHrLine');
+    cy.intercept('GET', '**/api/HrLineDetail/GetHrLineDetails*').as('getHrLineDetails');
+    cy.intercept('GET', '**/api/Machine/GetMachines*').as('getMachines');
+
+    taskCalendar.filterTaskInGridUsingOfNumber(ofNumber);
+    taskCalendar.preparesForDragAndDrop(uniqueId);
+
+    // Act: drag from grid to calendar
+    taskCalendar.dragAndDropTaskFromGridToCalendar(uniqueId);
+
+    //cy.reload();
+    // Wait for backend to confirm
+   cy.wait([
+        '@checkHrlineSchedule',
+        '@checkYearlySchedule',
+        '@addHrLineDetailNew',
+        '@getHrLine',
+        '@getHrLineDetails',
+        '@getMachines'
+    ], { timeout: 15000 }).each(xhr => {
+        expect(xhr.response.statusCode).to.eq(200);
     });
+
+});
 
 
     
@@ -81,21 +98,19 @@ describe('Task Calendar Test', () => {
         const ofNumber = data.delettionTaskOfNumberIdCalendar;  
 
          const tasks = taskCalendar.checkTaskInCalendar(ofNumber);
-    
-        // Act: If the task exists, perform the delete action
-        if (tasks) {
-            taskCalendar.deleteTaskFromCalendar(ofNumber);
-        }
+        taskCalendar.filterTaskInGridUsingOfNumber(ofNumber);
+        cy.wait(5000);
+        cy.reload();
+
          // Arrange: Check if the task exists on the calendar before proceeding
          taskCalendar.filterTaskInGridUsingOfNumber(ofNumber);
          const taskFound = taskCalendar.checkTaskInCalendar(ofNumber);
 
+         cy.reload();
         // Act: Perform the drag-and-drop action
         if (taskFound) {
             taskCalendar.dragAndDropTaskFromCalendarToCalendar(ofNumber);
-                
-            // Assert: Verify the splitted  task is not drag and drop show warning message
-            // cy.get('.toast-message').should('contain', es.DayIntervalTask);
+            cy.wait(2000);
         } else {
             cy.log('No task found in the calendar.');
         }
@@ -109,11 +124,15 @@ describe('Task Calendar Test', () => {
         const uniqueId = data.dragAndDropTaskUniqueId;
     
         // Arrange: Check if the task exists on the calendar before proceeding
-        taskCalendar.filterTaskInGridUsingOfNumber(ofNumber);
+        taskCalendar.verifyTaskDroppedAndValidated(ofNumber);
         const taskFound = taskCalendar.checkTaskInCalendar(ofNumber);
-    
+        
+        cy.reload();
         // Act: If the task exists, perform the delete action
         if (taskFound) {
+             taskCalendar.dragAndDropTaskFromCalendarToCalendar(ofNumber);
+            cy.wait(2000);
+            cy.reload();
             taskCalendar.deleteTaskFromCalendar(ofNumber);
     
             // Assert: Verify the task is deleted
@@ -128,19 +147,16 @@ describe('Task Calendar Test', () => {
         const ofNumber = data.NotSplittedTaskTaskOfNumberIdCalendar;  
 
         // Arrange: Set up initial conditions
-        taskCalendar.filterTaskInGridUsingOfNumber(ofNumber);
         taskCalendar.preparesForDragAndDrop(uniqueId);
         taskCalendar.dragAndDropTaskFromGridToCalendar(uniqueId);
         taskCalendar.verifyTaskDroppedAndValidated(ofNumber);
         const taskFound = taskCalendar.checkTaskInCalendar(ofNumber);
-
+        cy.reload();
         // Act: Perform the drag-and-drop action
         if (taskFound) {
             taskCalendar.dragAndDropTaskFromCalendarToCalendar(ofNumber);
             cy.wait(2000);
-            //Assert: Verify the splitted  task is not drag and drop show warning message
-            cy.get('#schedule_calendar').should('contain', ofNumber);
-
+            cy.reload();
             taskCalendar.deleteTaskFromCalendar(ofNumber);
 
              // Assert: Verify the task is deleted

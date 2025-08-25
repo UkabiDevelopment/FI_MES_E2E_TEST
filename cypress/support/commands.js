@@ -26,6 +26,8 @@ import 'cypress-real-events';
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
 Cypress.Commands.add('login', (admin = false) => {
+
+    cy.wait(5000);
     // Visit the login page
     cy.visit(Cypress.config('baseUrl'));
 
@@ -138,4 +140,7 @@ Cypress.Commands.add('dragAndDrop', (sourceSelector, targetSelector) => {
 
 Cypress.Commands.add('refreshPage', (selector) => {
     cy.ClickElement('.ml-4 > .dx-box-item-flex-base > :nth-child(1) > .dx-template-wrapper > .dx-widget > .dx-button-content');
+    cy.intercept('GET', '**/api/HrLine*').as('getHrLine');
+    cy.intercept('GET', '**/api/Machine/GetMachines*').as('getMachines');
+    cy.intercept('GET', '**/api/HrLineDetail/GetHrLineDetails*').as('getHrLineDetails');
 });

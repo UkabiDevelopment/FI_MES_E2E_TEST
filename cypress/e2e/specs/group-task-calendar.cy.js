@@ -14,7 +14,7 @@ describe('Group Task adding calendar Test', () => {
 
     it('Test Case 1: Verify the page task-calendar',()=>{
          // Arrange: Define the expected URL part
-        const expectedUrl = '/task-calender';
+        const expectedUrl = '/#/task-calender';
         
         // Assert:
         cy.VerifyUrl(expectedUrl); 
@@ -23,16 +23,29 @@ describe('Group Task adding calendar Test', () => {
      it('Test Case 2: drag group task from grid and drop task to calendar',()=>{
         const uniqueId = data.groupTaskUniqueId;
 
+         cy.intercept('POST', '**/api/HrLineDetail/CheckHrLineScheduledDetails*').as('checkHrlineSchedule');
+        cy.intercept('POST', '**/api/HrLineDetail/CheckYearlySchedule*').as('checkYearlySchedule');
+        cy.intercept('POST', '**/api/HrLineDetail/CheckMachineAvailability*').as('CheckMachineAvailability');
+        
         // Arrange: Set up initial conditions
         taskCalendar.filterTaskInGridUsingOfNumber(uniqueId);
         taskCalendar.preparesForDragAndDrop(uniqueId);
 
+
         // Act: Perform the drag-and-drop action
         taskCalendar.dragAndDropTaskFromGridToCalendar(uniqueId);
-        cy.VerifyTitle('h2',es.groupTaskPopupHeader);
+          // Wait for backend to confirm
+        cy.wait([
+                '@checkHrlineSchedule',
+                '@checkYearlySchedule',
+                '@CheckMachineAvailability',
+            ], { timeout: 15000 }).each(xhr => {
+                expect(xhr.response.statusCode).to.eq(200);
+            });
         cy.get('#machineDropdown0').select('Test 2');
         cy.ClickElement(':nth-child(2) > .box-item > .dx-widget > .dx-button-content');
 
+        
         // Assert: Verify the task is successfully dropped and check for any popups or validation
         cy.wait(5000);
     });

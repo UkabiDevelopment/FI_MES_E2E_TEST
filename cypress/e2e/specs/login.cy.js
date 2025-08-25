@@ -15,13 +15,13 @@ describe('Login Test', () => {
     it('Test Case 2: Login with valid credentials - Admin',()=>{
         loginPage.login(true);
          cy.wait(5000);
-        cy.VerifyUrl(`${Cypress.config('baseUrl')}/admin-landing`);
+        cy.VerifyUrl(`${Cypress.config('baseUrl')}/#/admin-landing`);
     });
 
     it('Test Case 3: Login with valid credentials - Normal User',()=>{
         loginPage.login();
          cy.wait(5000);
-        cy.VerifyUrl(`${Cypress.config('baseUrl')}/task-calender`);
+        cy.VerifyUrl(`${Cypress.config('baseUrl')}/#/task-calender`);
     });
 
     it('Test Case 4: should logout successfully - Admin',()=>{
