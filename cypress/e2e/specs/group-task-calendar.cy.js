@@ -12,7 +12,7 @@ describe('Group Task adding calendar Test', () => {
         cy.wait(2000);
     });
 
-    it.only('Test Case 1: Verify the page task-calendar',()=>{
+    it('Test Case 1: Verify the page task-calendar',()=>{
          // Arrange: Define the expected URL part
         const expectedUrl = '/#/task-calender';
         
