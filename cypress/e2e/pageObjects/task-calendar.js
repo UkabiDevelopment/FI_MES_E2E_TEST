@@ -163,6 +163,33 @@ class TaskCalendar{
         });
     };
 
+    dragAndDropTaskFromGridToCalendar1 = (uniqueId) => {
+  const formattedUniqueId = String(uniqueId).trim();
+
+  cy.contains('#scrollview .dx-draggable', formattedUniqueId, { timeout: 10000 })
+    .should('exist')
+    .then((task) => {
+      // Start drag from center
+      cy.wrap(task).realMouseDown({ position: 'center' });
+
+      // Target: first row, second cell
+      cy.get('.dx-scheduler-date-table-row')
+        .first()
+        .find('.dx-scheduler-date-table-cell')
+        .eq(1)
+        .then(($cell) => {
+          const cellRect = $cell[0].getBoundingClientRect();
+          const targetX = cellRect.left + cellRect.width / 2;
+          const targetY = cellRect.top + cellRect.height / 2;
+
+          cy.realMouseMove(targetX, targetY, { position: 'topLeft' });
+          cy.realMouseUp();
+        });
+
+      cy.log(`Dropped task ${formattedUniqueId} into the first calendar section`);
+    });
+};
+
 
     dragAndDropTaskFromCalendarToCalendar = (ofNumber) => {
         cy.intercept('GET', '**/api/HrLineDetail/GetHrLineDetails*').as('getHrLineDetail');
